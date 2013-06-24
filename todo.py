@@ -18,6 +18,12 @@ class Item(db.Model):
     text = db.Column(db.String)
     done = db.Column(db.Boolean)
 
+def out_to_csv():
+    writer = csv.writer(sys.stdout)
+    writer.writerow(['id', 'done', 'text'])
+    for item in Item.query.all():
+        writer.writerow([item.id, 'y' if item.done else '', item.text])
+
 def main():
     cmd = sys.argv[1]
     if cmd == 'add':
@@ -27,10 +33,7 @@ def main():
             db.session.commit()
             print 'adding', t
     elif cmd == 'csv':
-        writer = csv.writer(sys.stdout)
-        writer.writerow(['id', 'done', 'text'])
-        for item in Item.query.all():
-            writer.writerow([item.id, 'y' if item.done else '', item.text])
+        out_to_csv()
     elif cmd == 'delete':
         id = int(sys.argv[2])
         item = Item.query.get(id)
@@ -51,6 +54,8 @@ def main():
             print item.id, status, item.text
     else:
         print 'unknown command'
+
+    
 
 if __name__ == '__main__':
     app.app_context().push()
