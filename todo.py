@@ -3,6 +3,7 @@
 
 # vim: smartindent expandtab tabstop=4 shiftwidth=4 softtabstop=4
 import sys
+import csv
 
 # flask import
 import flask
@@ -25,6 +26,11 @@ def main():
             db.session.add(Item(text=t))
             db.session.commit()
             print 'adding', t
+    elif cmd == 'csv':
+        writer = csv.writer(sys.stdout)
+        writer.writerow(['id', 'done', 'text'])
+        for item in Item.query.all():
+            writer.writerow([item.id, 'y' if item.done else '', item.text])
     elif cmd == 'delete':
         id = int(sys.argv[2])
         item = Item.query.get(id)
