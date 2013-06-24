@@ -4,6 +4,7 @@
 # vim: smartindent expandtab tabstop=4 shiftwidth=4 softtabstop=4
 import sys
 import csv
+import json
 
 # flask import
 import flask
@@ -31,6 +32,17 @@ def out_to_csv():
     for item in Item.query.all():
         writer.writerow([item.id, 'y' if item.done else '', item.text])
 
+def out_to_json():
+    data = []
+    for item in Item.query.all():
+            data.append({
+                'id': item.id,
+                'done': item.done,
+                'text': item.text,
+                })
+            print data
+            json.dumps(data, indent=2)
+
 def main():
     cmd = sys.argv[1]
     if cmd == 'add':
@@ -51,6 +63,8 @@ def main():
         item = Item.query.get(id)
         item.done = True
         db.session.commit()
+    elif cmd == 'json':
+        out_to_json()
     elif cmd == 'list':
         for item in Item.query.all():
             status = '[x]' if item.done else '[ ]'
