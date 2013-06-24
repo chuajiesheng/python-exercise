@@ -19,12 +19,30 @@ class Item(db.Model):
     text = db.Column(db.String)
     done = db.Column(db.Boolean)
 
-def add_to_db():
-    if len(sys.argv) > 2:
-        t = sys.argv[2]
-        db.session.add(Item(text=t))
-        db.session.commit()
-        print 'adding', t
+def add_to_db(t):
+    db.session.add(Item(text=t))
+    db.session.commit()
+    print 'adding', t
+
+def list_all():
+    for item in Item.query.all():
+        status = '[x]' if item.done else '[ ]'
+        print item.id, status, item.text
+
+def mark_as_done(id):
+    item = Item.query.get(id)
+    item.done = True
+    db.session.commit()
+
+def delete(id):
+    item = Item.query.get(id)
+    db.session.delete(item)
+    db.session.commit()
+
+def delete_all():
+    for item in Item.query.all():
+        db.session.delete(item)
+    db.session.commit()
 
 def out_to_csv():
     writer = csv.writer(sys.stdout)
@@ -46,33 +64,25 @@ def out_to_json():
 def main():
     cmd = sys.argv[1]
     if cmd == 'add':
-        add_to_db()
+        add_to_db(sys.argv[2])
     elif cmd == 'csv':
         out_to_csv()
     elif cmd == 'delete':
         id = int(sys.argv[2])
-        item = Item.query.get(id)
-        db.session.delete(item)
-        db.session.commit()
+        delete(id)
+        list_all()
     elif cmd == 'delete-all':
-        for item in Item.query.all():
-            db.session.delete(item)
-        db.session.commit()
+        delete_all()
     elif cmd == 'done':
         id = int(sys.argv[2])
-        item = Item.query.get(id)
-        item.done = True
-        db.session.commit()
+        mark_as_done(id)
+        list_all()
     elif cmd == 'json':
         out_to_json()
     elif cmd == 'list':
-        for item in Item.query.all():
-            status = '[x]' if item.done else '[ ]'
-            print item.id, status, item.text
+        list_all()
     else:
         print 'unknown command'
-
-    
 
 if __name__ == '__main__':
     app.app_context().push()
