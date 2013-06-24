@@ -24,10 +24,18 @@ def add_to_db(t):
     db.session.commit()
     print 'adding', t
 
+def add_object_to_db(i):
+    db.session.add(i)
+    db.session.commit()
+    print 'added', i.text
+
 def list_all():
-    for item in Item.query.all():
+    items = Item.query.all()
+    for item in items:
         status = '[x]' if item.done else '[ ]'
         print item.id, status, item.text
+    if len(items) == 0:
+        print 'no item in list'
 
 def mark_as_done(id):
     item = Item.query.get(id)
@@ -44,11 +52,23 @@ def delete_all():
         db.session.delete(item)
     db.session.commit()
 
+def delete_done():
+    for item in Item.query.all():
+        if (item.done == True):
+            db.session.delete(item)
+    db.session.commit()
+
 def out_to_csv():
     writer = csv.writer(sys.stdout)
     writer.writerow(['id', 'done', 'text'])
     for item in Item.query.all():
         writer.writerow([item.id, 'y' if item.done else '', item.text])
+
+def load_csv(file):
+    with open(file, 'rb') as csvfile:
+        reader = csv.DictReader(csvfile)
+        for row in reader:         
+            add_object_to_db(Item(text=row['text'], done=row['done']=='y'))
 
 def out_to_json():
     data = []
@@ -61,7 +81,9 @@ def out_to_json():
     print json.dumps(data, indent=2)
 
 def load_json():
-    print json.load(sys.stdin)
+    list = json.load(sys.stdin)
+    for i in list:
+        add_object_to_db(Item(text=i['text'], done=i['done']))
 
 def main():
     cmd = sys.argv[1]
@@ -69,12 +91,17 @@ def main():
         add_to_db(sys.argv[2])
     elif cmd == 'csv':
         out_to_csv()
+    elif cmd == 'loadcsv':
+        load_csv(sys.argv[2])
     elif cmd == 'delete':
         id = int(sys.argv[2])
         delete(id)
         list_all()
     elif cmd == 'delete-all':
         delete_all()
+    elif cmd == 'cleanup':
+        delete_done()
+        list_all()
     elif cmd == 'done':
         id = int(sys.argv[2])
         mark_as_done(id)
