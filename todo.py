@@ -60,6 +60,9 @@ def out_to_json():
                 })
     print json.dumps(data, indent=2)
 
+def load_json():
+    print json.load(sys.stdin)
+
 def main():
     cmd = sys.argv[1]
     if cmd == 'add':
@@ -78,6 +81,8 @@ def main():
         list_all()
     elif cmd == 'json':
         out_to_json()
+    elif cmd == 'loadjson':
+        load_json()
     elif cmd == 'list':
         list_all()
     else:
