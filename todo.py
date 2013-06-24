@@ -53,13 +53,12 @@ def out_to_csv():
 def out_to_json():
     data = []
     for item in Item.query.all():
-            data.append({
+        data.append({
                 'id': item.id,
                 'done': item.done,
                 'text': item.text,
                 })
-            print data
-            json.dumps(data, indent=2)
+    print json.dumps(data, indent=2)
 
 def main():
     cmd = sys.argv[1]
