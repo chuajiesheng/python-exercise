@@ -30,6 +30,10 @@ def main():
         item = Item.query.get(id)
         db.session.delete(item)
         db.session.commit()
+    elif cmd == 'delete-all':
+        for item in Item.query.all():
+            db.session.delete(item)
+        db.session.commit()
     elif cmd == 'done':
         id = int(sys.argv[2])
         item = Item.query.get(id)
