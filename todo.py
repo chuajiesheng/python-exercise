@@ -18,6 +18,13 @@ class Item(db.Model):
     text = db.Column(db.String)
     done = db.Column(db.Boolean)
 
+def add_to_db():
+    if len(sys.argv) > 2:
+        t = sys.argv[2]
+        db.session.add(Item(text=t))
+        db.session.commit()
+        print 'adding', t
+
 def out_to_csv():
     writer = csv.writer(sys.stdout)
     writer.writerow(['id', 'done', 'text'])
@@ -27,11 +34,7 @@ def out_to_csv():
 def main():
     cmd = sys.argv[1]
     if cmd == 'add':
-        if len(sys.argv) > 2:
-            t = sys.argv[2]
-            db.session.add(Item(text=t))
-            db.session.commit()
-            print 'adding', t
+        add_to_db()
     elif cmd == 'csv':
         out_to_csv()
     elif cmd == 'delete':
